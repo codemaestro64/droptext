@@ -1,1 +1,176 @@
 @import "tailwindcss";
+
+/* ====================== */
+/*  Dark Theme (Default)  */
+/* ====================== */
+.dark {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.dark .glass-effect {
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.dark .card-bg {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.dark .card-header {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.dark .input-bg {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.dark .input-bg:focus {
+  ring: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.dark .line-numbers {
+  background: rgba(255, 255, 255, 0.05);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dark .nav-link {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.dark .nav-link:hover {
+  color: white;
+}
+
+.dark .theme-toggle-btn {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.dark .theme-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.dark .text-primary {
+  color: white;
+}
+
+.dark .text-secondary {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.dark .text-muted {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.dark .text-subtle {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.dark .border-color {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.dark .hover-bg:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.dark .footer-bg {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+
+/* ====================== */
+/*       Light Theme      */
+/* ====================== */
+.light {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+.light .glass-effect {
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.light .card-bg {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.light .card-header {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.light .input-bg {
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.light .input-bg:focus {
+  ring: 2px solid rgba(99, 102, 241, 0.3);
+}
+
+.light .line-numbers {
+  background: rgba(0, 0, 0, 0.03);
+  border-right: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.light .nav-link {
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.light .nav-link:hover {
+  color: rgba(0, 0, 0, 0.9);
+}
+
+.light .theme-toggle-btn {
+  background: rgba(0, 0, 0, 0.1);
+  color: rgba(0, 0, 0, 0.8);
+}
+
+.light .theme-toggle-btn:hover {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.light .text-primary {
+  color: rgba(0, 0, 0, 0.9);
+}
+
+.light .text-secondary {
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.light .text-muted {
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.light .text-subtle {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+.light .border-color {
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+.light .hover-bg:hover {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.light .footer-bg {
+  background: rgba(255, 255, 255, 0.6);
+}
+
+
+/* ====================== */
+/*     Theme Toggle Button     */
+/* ====================== */
+.theme-toggle-btn {
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+}
