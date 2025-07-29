@@ -1,6 +1,8 @@
 'use client'
 
 import {  ChangeEvent, useState } from "react";
+import { Send, Delete } from "lucide-react";
+import { toast } from "react-toastify"
 import { 
   SUPPORTED_LANGUAGES, 
   DEFAULT_LANGUAGE, 
@@ -9,6 +11,7 @@ import {
 import TextEditor from "../TextEditor"
 import SelectInput from "../SelectInput";
 import TextInput from "../TextInput";
+import { decryptText, encryptText } from "@/utils/encryption";
 
 const languageOptions = SUPPORTED_LANGUAGES.map(({ value, label }) => ({ value, label }))
 const expirationOptions = EXPIRATION_OPTIONS.map(({ value, label }) => ({ value, label }))
@@ -19,6 +22,8 @@ const EditorSection = () => {
   const [selectedLanguage, setSelectedLanguage] = useState(defaultLanguageOption ? defaultLanguageOption : SUPPORTED_LANGUAGES[0])
   const [expiration, setExpiration] = useState<number>(0) // 0 means expire after first reading
   const [stats, setStats] = useState({ characters: 0, words: 0, lines: 0 });
+  const [password, setPassword] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
   
   const handleEditorChange = (val: string) => {
     setTextContent(val);
@@ -54,9 +59,44 @@ const EditorSection = () => {
     handleEditorChange("")
   }
 
-  const handleSubmit = () => {
-    
-  }
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+
+    try {
+      const { cipherText, hashSecret } = encryptText(textContent.trim(), password);
+      const response = await fetch("/api/paste", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          content: cipherText,
+          language: selectedLanguage.value,
+          expiration: expiration,
+          hasPassword: !!password.trim(),
+        }),
+      });
+
+      if (!response.ok) {
+        let message = `Error ${response.status} - ${response.statusText}`;
+
+        try {
+          const data = await response.json();
+          if (typeof data === 'object' && data?.error) {
+            message = data.error;
+          }
+        } catch {}
+        throw new Error(message);
+      }
+
+      const { id } = await response.json();
+      toast.success("Paste created!");
+      // You can redirect to /paste/${id} or similar here
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Unexpected error");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   
   return (
     <section className="card backdrop-blur-lg rounded-2xl shadow-2xl border-color overflow-hidden mb-8">
@@ -66,6 +106,8 @@ const EditorSection = () => {
             
             <TextInput 
               type="password"
+              value={password}
+              onChange={(evt) => setPassword(evt.target.value)}
               placeholder="Optional password"
             />
           </div>
@@ -101,17 +143,19 @@ const EditorSection = () => {
             <button
               onClick={clearEditorContent}
               disabled={!stats.characters}
-              className="input-bg hover:opacity-80 text-primary px-4 py-2 rounded-lg border border-color disabled:opacity-50 disabled:cursor-not-allowed"
+              className="input-bg hover:opacity-80 text-primary px-4 flex items-center justify-center space-x-2  py-2 rounded-lg border border-color disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Clear
+              <Delete className="w-4 h-4" />
+              <span>Clear</span>
             </button>
 
             <button
-              disabled={!stats.characters}
+              disabled={isSubmitting || !stats.characters}
               onClick={handleSubmit}
-              className="btn-primary text-white px-6 py-2 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              className="btn-primary text-white px-6 py-2 flex items-center justify-center space-x-2 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Create Paste
+              <Send className="w-4 h-4" />
+              <span>{isSubmitting ? 'Submitting...' : 'Submit'}</span>
             </button>
           </div>
         </div>

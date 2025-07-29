@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ToastContainer } from "react-toastify"
 import "./globals.css";
 import AppBar from "@/components/AppBar";
 import PageWrapper from "@/components/PageWrapper";
@@ -24,6 +25,7 @@ export default function RootLayout({
                 {children}
               </PageWrapper>
             </main>
+            <ToastContainer position="top-right" autoClose={5000} />
         </ThemeProvider>
       </body>
     </html>
