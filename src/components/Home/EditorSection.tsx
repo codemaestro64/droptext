@@ -1,20 +1,27 @@
 'use client'
 
 import {  ChangeEvent, useState } from "react";
+import { 
+  SUPPORTED_LANGUAGES, 
+  DEFAULT_LANGUAGE, 
+  EXPIRATION_OPTIONS 
+} from "@/config";
 import TextEditor from "../TextEditor"
 import SelectInput from "../SelectInput";
-import { SUPPORTED_LANGUAGES, EXPIRES_OPTS } from "@/config";
 import TextInput from "../TextInput";
 
 const languageOptions = SUPPORTED_LANGUAGES.map(({ value, label }) => ({ value, label }))
-const expirationOptions = EXPIRES_OPTS.map(({ value, label }) => ({ value, label }))
+const expirationOptions = EXPIRATION_OPTIONS.map(({ value, label }) => ({ value, label }))
+const defaultLanguageOption = SUPPORTED_LANGUAGES.find(lang => lang.value === DEFAULT_LANGUAGE)
 
 const EditorSection = () => {
-  const [value, setValue] = useState('');
+  const [textContent, setTextContent] = useState('');
+  const [selectedLanguage, setSelectedLanguage] = useState(defaultLanguageOption ? defaultLanguageOption : SUPPORTED_LANGUAGES[0])
+  const [expiration, setExpiration] = useState<number>(0) // 0 means expire after first reading
   const [stats, setStats] = useState({ characters: 0, words: 0, lines: 0 });
   
   const handleEditorChange = (val: string) => {
-    setValue(val);
+    setTextContent(val);
 
     const characters = val.length;
     const words = val.trim().split(/\s+/).filter(Boolean).length;
@@ -23,17 +30,32 @@ const EditorSection = () => {
     setStats({ characters, words, lines });
   }
 
-  const handleLanguageChange = (ev: ChangeEvent<HTMLSelectElement>) => {
+  const handleLanguageChange = (evt: ChangeEvent<HTMLSelectElement>) => {
+    const selectedLang = SUPPORTED_LANGUAGES.find(lang => lang.value === evt.target.value)
+    if (!selectedLang) {
+      return
+    }
 
+    setSelectedLanguage(selectedLang)
   }
 
-  const handleExpirationOptionChange = (ev: ChangeEvent<HTMLSelectElement>) => {
+  const handleExpirationOptionChange = (evt: ChangeEvent<HTMLSelectElement>) => {
+    // validate selected expiration option
+    const selectedExpiration = Number(evt.target.value)
+    if (!EXPIRATION_OPTIONS.find(opt => opt.value === selectedExpiration)) {
+      return 
+    }
 
+    setExpiration(selectedExpiration)
   }
 
   const clearEditorContent = () => {
-    setValue("")
+    setTextContent("")
     handleEditorChange("")
+  }
+
+  const handleSubmit = () => {
+    
   }
   
   return (
@@ -50,11 +72,12 @@ const EditorSection = () => {
           <div className="flex flex-row gap-2">
             <SelectInput 
               onChange={handleLanguageChange}
-              value={SUPPORTED_LANGUAGES[0].value}
+              value={selectedLanguage?.value}
               options={languageOptions}
             />
             <SelectInput 
               onChange={handleExpirationOptionChange}
+              value={expiration}
               options={expirationOptions}
             />
           </div>
@@ -62,7 +85,8 @@ const EditorSection = () => {
       </div>
       <div className="card-body">
         <TextEditor 
-          value={value}
+          extension={selectedLanguage?.extension}
+          value={textContent}
           onChange={handleEditorChange}
         />
       </div>
@@ -77,14 +101,15 @@ const EditorSection = () => {
             <button
               onClick={clearEditorContent}
               disabled={!stats.characters}
-              className="input-bg hover:opacity-80 text-primary px-4 py-2 rounded-lg transition-colors border border-color disabled:opacity-50 disabled:cursor-not-allowed"
+              className="input-bg hover:opacity-80 text-primary px-4 py-2 rounded-lg border border-color disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Clear
             </button>
 
             <button
               disabled={!stats.characters}
-              className="btn-primary text-white px-6 py-2 rounded-lg font-medium transition-colors shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={handleSubmit}
+              className="btn-primary text-white px-6 py-2 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Create Paste
             </button>

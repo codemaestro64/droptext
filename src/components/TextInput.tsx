@@ -1,7 +1,6 @@
 import React from "react";
 
 interface TextInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-
 }
 
 const TextInput: React.FC<TextInputProps> = ({ className, ...rest }) => {
