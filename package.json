@@ -9,7 +9,10 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@codemirror/lang-go": "^6.0.1",
+    "@codemirror/lang-javascript": "^6.2.4",
     "@tailwindcss/postcss": "^4.1.11",
+    "@uiw/react-codemirror": "^4.24.1",
     "lucide-react": "^0.528.0",
     "next": "15.4.4",
     "postcss": "^8.5.6",

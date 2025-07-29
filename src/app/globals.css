@@ -26,23 +26,6 @@
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.dark .input-bg:focus {
-  ring: 2px solid rgba(255, 255, 255, 0.3);
-}
-
-.dark .line-numbers {
-  background: rgba(255, 255, 255, 0.05);
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.dark .nav-link {
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.dark .nav-link:hover {
-  color: white;
-}
-
 .dark .theme-toggle-btn {
   background: rgba(255, 255, 255, 0.2);
   color: white;
@@ -80,7 +63,6 @@
   background: rgba(255, 255, 255, 0.05);
 }
 
-
 /* ====================== */
 /*       Light Theme      */
 /* ====================== */
@@ -106,23 +88,6 @@
 .light .input-bg {
   background: rgba(255, 255, 255, 0.8);
   border: 1px solid rgba(0, 0, 0, 0.2);
-}
-
-.light .input-bg:focus {
-  ring: 2px solid rgba(99, 102, 241, 0.3);
-}
-
-.light .line-numbers {
-  background: rgba(0, 0, 0, 0.03);
-  border-right: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.light .nav-link {
-  color: rgba(0, 0, 0, 0.7);
-}
-
-.light .nav-link:hover {
-  color: rgba(0, 0, 0, 0.9);
 }
 
 .light .theme-toggle-btn {
