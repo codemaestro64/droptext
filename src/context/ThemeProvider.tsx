@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 
-type Theme = 'light' | 'dark';
+type Theme = 'theme-light' | 'theme-dark';
 
 interface ThemeProviderProps {
   children: React.ReactNode
@@ -29,7 +29,7 @@ interface ThemeContextType {
 export const ThemeContext = createContext<ThemeContextType | null>(null);
 
 const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
-  const [theme, setTheme] = useState<Theme>('dark');
+  const [theme, setTheme] = useState<Theme>('theme-dark');
 
   useEffect(() => {
     const stored = localStorage.getItem('theme') as Theme | null;
@@ -37,14 +37,14 @@ const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const toggleTheme = () => {
-    const next = theme === 'dark' ? 'light' : 'dark';
+    const next = theme === 'theme-dark' ? 'theme-light' : 'theme-dark';
     setTheme(next);
     localStorage.setItem('theme', next);
   };
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
-      <div className={`${theme} min-h-screen`}>
+      <div className={`${theme} app min-h-screen`}>
         {children}
       </div>
     </ThemeContext.Provider>

@@ -18,7 +18,7 @@ const TextEditor = ({ onChange, value }: TextEditorProps) => {
       value={value}
       height="300px"
       extensions={[go()]}
-      theme={theme}
+      theme={theme === "theme-dark" ? "dark" : "light"}
       onChange={onChange}
     />
   )

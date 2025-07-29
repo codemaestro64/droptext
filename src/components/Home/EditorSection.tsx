@@ -1,6 +1,6 @@
 'use client'
 
-import {  useState } from "react";
+import {  ChangeEvent, useState } from "react";
 import TextEditor from "../TextEditor"
 import SelectInput from "../SelectInput";
 import { SUPPORTED_LANGUAGES, EXPIRES_OPTS } from "@/config";
@@ -23,13 +23,21 @@ const EditorSection = () => {
     setStats({ characters, words, lines });
   }
 
+  const handleLanguageChange = (ev: ChangeEvent<HTMLSelectElement>) => {
+
+  }
+
+  const handleExpirationOptionChange = (ev: ChangeEvent<HTMLSelectElement>) => {
+
+  }
+
   const clearEditorContent = () => {
     setValue("")
     handleEditorChange("")
   }
   
   return (
-    <section className="card-bg backdrop-blur-lg rounded-2xl shadow-2xl border-color overflow-hidden mb-8">
+    <section className="card backdrop-blur-lg rounded-2xl shadow-2xl border-color overflow-hidden mb-8">
       <div className="card-header border-b border-color p-4">
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
           <div className="flex flex-row gap-2">
@@ -41,10 +49,12 @@ const EditorSection = () => {
           </div>
           <div className="flex flex-row gap-2">
             <SelectInput 
+              onChange={handleLanguageChange}
               value={SUPPORTED_LANGUAGES[0].value}
               options={languageOptions}
             />
             <SelectInput 
+              onChange={handleExpirationOptionChange}
               options={expirationOptions}
             />
           </div>
@@ -74,7 +84,7 @@ const EditorSection = () => {
 
             <button
               disabled={!stats.characters}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              className="btn-primary text-white px-6 py-2 rounded-lg font-medium transition-colors shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Create Paste
             </button>

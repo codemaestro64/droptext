@@ -1,141 +1,155 @@
 @import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-/* ====================== */
-/*  Dark Theme (Default)  */
-/* ====================== */
-.dark {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+:root {
+  --color-bg: #e2e8f0;
+  --color-surface: rgba(255, 255, 255, 0.9);
+  --color-text-primary: rgba(0, 0, 0, 0.88);
+  --color-text-muted: rgba(0, 0, 0, 0.6);
+  --color-placeholder: rgba(0, 0, 0, 0.6);
+  --color-border: rgba(0, 0, 0, 0.12);
+  --color-primary: #4D9BE6;
+  --color-primary-hover: #5CAEFF;
+  --color-danger: #E53935;
+  --color-success: #43A047;
+  --color-input-bg: rgba(255, 255, 255, 0.8);
+  --color-code-bg: #f3f4f6;
+  --shadow-glow: 0 0 8px rgba(0, 0, 0, 0.06);
+  --blur: blur(8px);
 }
 
-.dark .glass-effect {
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
-  background: rgba(255, 255, 255, 0.1);
+.theme-dark {
+  --color-bg: #0F0F1A;
+  --color-surface: #1A1B2B;
+  --color-text-primary: #E8ECF1;
+  --color-text-muted: #A3A9B9;
+  --color-placeholder: rgba(255, 255, 255, 0.4);
+  --color-border: #292C3C;
+  --color-primary: #4D9BE6;
+  --color-primary-hover: #5CAEFF;
+  --color-danger: #FF5C8D;
+  --color-success: #5CE1A5;
+  --color-input-bg: #151621;
+  --color-code-bg: #12131C;
+  --shadow-glow: none;
+  --blur: blur(8px);
 }
 
-.dark .card-bg {
-  background: rgba(255, 255, 255, 0.1);
+@layer base {
+  html, body,
+  .app,
+  .card,
+  .navbar,
+  .footer,
+  .btn-primary,
+  .btn-danger,
+  .btn-toggle,
+  .input,
+  .select,
+  .code-editor {
+    transition:
+      background-color 0.4s ease,
+      color 0.4s ease,
+      border-color 0.4s ease,
+      box-shadow 0.4s ease;
+  }
 }
 
-.dark .card-header {
-  background: rgba(255, 255, 255, 0.05);
-}
+@layer utilities {
+  .app {
+    background-color: var(--color-bg);
+    color: var(--color-text-primary);
+  }
 
-.dark .input-bg {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
+  .bg-surface {
+    background-color: var(--color-surface);
+  }
 
-.dark .theme-toggle-btn {
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
-}
+  .bg-input {
+    background-color: var(--color-input-bg);
+  }
 
-.dark .theme-toggle-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
-}
+  .bg-code {
+    background-color: var(--color-code-bg);
+  }
 
-.dark .text-primary {
-  color: white;
-}
+  .text-main {
+    color: var(--color-text-primary);
+  }
 
-.dark .text-secondary {
-  color: rgba(255, 255, 255, 0.8);
-}
+  .text-muted {
+    color: var(--color-text-muted);
+  }
 
-.dark .text-muted {
-  color: rgba(255, 255, 255, 0.6);
-}
+  .text-danger {
+    color: var(--color-danger);
+  }
 
-.dark .text-subtle {
-  color: rgba(255, 255, 255, 0.4);
-}
+  .text-success {
+    color: var(--color-success);
+  }
 
-.dark .border-color {
-  border-color: rgba(255, 255, 255, 0.2);
-}
+  .btn-primary {
+    background-color: var(--color-primary);
+    color: var(--color-text-primary);
+  }
 
-.dark .hover-bg:hover {
-  background: rgba(255, 255, 255, 0.05);
-}
+  .btn-primary:hover {
+    background-color: var(--color-primary-hover);
+  }
 
-.dark .footer-bg {
-  background: rgba(255, 255, 255, 0.05);
-}
+  .btn-danger {
+    background-color: var(--color-danger);
+    color: var(--color-text-main);
+  }
 
-/* ====================== */
-/*       Light Theme      */
-/* ====================== */
-.light {
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-}
+  .btn-toggle {
+    color: var(--color-text-primary);
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+  }
 
-.light .glass-effect {
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
-  background: rgba(255, 255, 255, 0.8);
-}
+  .btn-toggle:hover {
+    color: var(--color-primary);
+  }
 
-.light .card-bg {
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(0, 0, 0, 0.1);
-}
+  .navbar {
+    background-color: var(--color-surface);
+    color: var(--color-text-main);
+    box-shadow: var(--shadow-glow);
+    -webkit-backdrop-filter: var(--blur);
+    backdrop-filter: var(--blur);
+  }
 
-.light .card-header {
-  background: rgba(0, 0, 0, 0.02);
-}
+  .footer {
+    background-color: var(--color-surface);
+    color: var(--color-text-muted);
+  }
 
-.light .input-bg {
-  background: rgba(255, 255, 255, 0.8);
-  border: 1px solid rgba(0, 0, 0, 0.2);
-}
+  .card {
+    background-color: var(--color-surface);
+    box-shadow: var(--shadow-glow);
+  }
 
-.light .theme-toggle-btn {
-  background: rgba(0, 0, 0, 0.1);
-  color: rgba(0, 0, 0, 0.8);
-}
+  .input,
+  .select {
+    background-color: var(--color-input-bg);
+    color: var(--color-text-main);
+    border: 1px solid var(--color-border);
+  }
 
-.light .theme-toggle-btn:hover {
-  background: rgba(0, 0, 0, 0.15);
-}
+  .input::placeholder {
+    color: var(--color-placeholder);
+  }
 
-.light .text-primary {
-  color: rgba(0, 0, 0, 0.9);
-}
-
-.light .text-secondary {
-  color: rgba(0, 0, 0, 0.7);
-}
-
-.light .text-muted {
-  color: rgba(0, 0, 0, 0.6);
-}
-
-.light .text-subtle {
-  color: rgba(0, 0, 0, 0.4);
-}
-
-.light .border-color {
-  border-color: rgba(0, 0, 0, 0.1);
-}
-
-.light .hover-bg:hover {
-  background: rgba(0, 0, 0, 0.03);
-}
-
-.light .footer-bg {
-  background: rgba(255, 255, 255, 0.6);
-}
-
-
-/* ====================== */
-/*     Theme Toggle Button     */
-/* ====================== */
-.theme-toggle-btn {
-  padding: 8px 12px;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-  border: none;
-  cursor: pointer;
-  font-size: 18px;
+  .code-editor {
+    background-color: var(--color-code-bg);
+    color: var(--color-text-main);
+  }
 }

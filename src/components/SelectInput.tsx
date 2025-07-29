@@ -9,7 +9,7 @@ const SelectInput: React.FC<SelectInputProps> = ({ options, className, ...rest }
   return (
     <select
       {...rest}
-      className={`input-bg rounded-lg px-4 py-2 text-secondary focus:outline-none focus:ring-1 focus:ring-blue-300 ${className || ''}`}
+      className={`select rounded-lg px-4 py-2 focus:outline-none ${className || ''}`}
     >
       {options.map((opt) => (
         <option key={opt.value} value={opt.value}>

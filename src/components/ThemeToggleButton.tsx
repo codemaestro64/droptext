@@ -8,10 +8,10 @@ const ThemeToggleButton = () => {
   
   return (
     <button
-      className="theme-toggle-btn"
+      className="btn-toggle"
       onClick={toggleTheme}
     >
-      {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+      {theme === 'theme-dark' ? <Sun size={20} /> : <Moon size={20} />}
     </button>
   )
 }
