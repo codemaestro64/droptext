@@ -2,8 +2,15 @@ import { gcm } from '@noble/ciphers/aes';
 import { utf8ToBytes, bytesToUtf8 } from '@noble/ciphers/utils';
 import { randomBytes } from '@noble/ciphers/webcrypto';
 
-const toBase64 = (buf: Uint8Array) => btoa(String.fromCharCode(...buf));
-const fromBase64 = (b64: string) => new Uint8Array(atob(b64).split('').map(c => c.charCodeAt(0)));
+const toBase64Url = (buf: Uint8Array) =>
+  btoa(String.fromCharCode(...buf))
+    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+
+const fromBase64Url = (b64url: string): Uint8Array => {
+  let base64 = b64url.replace(/-/g, '+').replace(/_/g, '/');
+  while (base64.length % 4) base64 += '=';
+  return new Uint8Array(atob(base64).split('').map(c => c.charCodeAt(0)));
+};
 
 const deriveKey = (key: Uint8Array, password: string): Uint8Array => {
   const pwdBytes = utf8ToBytes(password);
@@ -15,7 +22,7 @@ const deriveKey = (key: Uint8Array, password: string): Uint8Array => {
 };
 
 export const encryptText = (text: string, password: string) => {
-  const key = randomBytes(32);
+  const key = randomBytes(32); 
   const finalKey = password.trim()
     ? deriveKey(key, password)
     : key;
@@ -26,26 +33,26 @@ export const encryptText = (text: string, password: string) => {
   const cipherText = aes.encrypt(data);
 
   return {
-    cipherText: toBase64(cipherText),
-    hashSecret: toBase64(key) + "." + toBase64(nonce),
+    cipherText: toBase64Url(cipherText),
+    hashSecret: toBase64Url(key) + '.' + toBase64Url(nonce),
   };
 };
 
 export const decryptText = (encryptedText: string, hashSecret: string, password: string): string => {
-  const [keyB64, nonceB64] = hashSecret.split(".");
+  const [keyB64, nonceB64] = hashSecret.split('.');
   if (!keyB64 || !nonceB64) {
     throw new Error("Invalid hashSecret format");
   }
 
-  const rawKey = fromBase64(keyB64);
-  const nonce = fromBase64(nonceB64);
+  const rawKey = fromBase64Url(keyB64);
+  const nonce = fromBase64Url(nonceB64);
 
   const key = password.trim()
     ? deriveKey(rawKey, password)
     : rawKey;
 
   const aes = gcm(key, nonce);
-  const ciphertext = fromBase64(encryptedText);
+  const ciphertext = fromBase64Url(encryptedText);
   const plaintextBytes = aes.decrypt(ciphertext);
   return bytesToUtf8(plaintextBytes);
 };

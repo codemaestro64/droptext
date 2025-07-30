@@ -1,8 +1,8 @@
-import HeroSection from "@/components/Home/HeroSection";
-import EditorSection from "@/components/Home/EditorSection";
-import FeaturesSection from "@/components/Home/FeaturesSection";
+import HeroSection from "@/components/HomePage/HeroSection";
+import EditorSection from "@/components/HomePage/EditorSection";
+import FeaturesSection from "@/components/HomePage/FeaturesSection";
 
-export default function Home() {
+const Home = () => {
   return (
     <div className="py-6">
       <HeroSection />
@@ -11,3 +11,5 @@ export default function Home() {
     </div>
   );
 }
+
+export default Home

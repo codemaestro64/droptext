@@ -4,7 +4,7 @@ import { pasteSchema } from '@/schemas/paste.schema';
 import { generateUUID } from '@/utils';
 import { NewPaste } from '@/types/database';
 
-export async function POST(req: NextRequest) {
+export const POST = async (req: NextRequest) => {
   try {
     const body = await req.json();
 

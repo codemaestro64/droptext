@@ -1,28 +1,36 @@
 'use client'
 
 import CodeMirror from '@uiw/react-codemirror';
-import { go } from '@codemirror/lang-go';
 import { useTheme } from '@/hooks/useTheme';
+import { editorExtensionsFromLanguage } from '@/utils';
 
 
 interface TextEditorProps {
-  onChange: (val: string) => void
-  extension: () => any
+  onChange?: (val: string) => void
+  language: string
   value: string
+  editable?: boolean 
+  height?: string
 }
 
-const TextEditor = ({ onChange, value, extension }: TextEditorProps) => {
+const TextEditor = ({ onChange, value, language, editable = true, height = "300px" }: TextEditorProps) => {
   const { theme } = useTheme()
-  const ext = extension?.();
-  const extensions = ext ? [ext] : [];
+  const extensions = editorExtensionsFromLanguage(language)
+
+  const handleChange = (val: string) => {
+    if (onChange) {
+      onChange(val)
+    }
+  }
 
   return (
     <CodeMirror 
+      editable={editable}
       value={value}
-      height="300px"
+      height={height}
       extensions={extensions}
       theme={theme === "theme-dark" ? "dark" : "light"}
-      onChange={onChange}
+      onChange={handleChange}
     />
   )
 }

@@ -3,6 +3,7 @@
 import { useCallback, useState, ChangeEvent } from "react";
 import { Send, Delete } from "lucide-react";
 import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
 import { SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE, DURATION_OPTIONS } from "@/config";
 import { encryptText } from "@/utils/encryption";
@@ -12,6 +13,9 @@ import { PasteValidationError } from "@/utils/errors";
 import TextEditor from "../TextEditor";
 import SelectInput from "../SelectInput";
 import TextInput from "../TextInput";
+import { useFlash } from "@/hooks/useFlash";
+import { uuidSecretToSlug } from "@/utils";
+
 
 const languageOptions = SUPPORTED_LANGUAGES.map(({ value, label }) => ({ value, label }));
 const durationOptions = DURATION_OPTIONS.map(({ value, label }) => ({ value, label }));
@@ -24,6 +28,8 @@ const EditorSection = () => {
   const [stats, setStats] = useState({ characters: 0, words: 0, lines: 0 });
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter()
+  const { setFlash } = useFlash()
 
   const updateStats = useCallback((content: string) => {
     setStats({
@@ -55,24 +61,29 @@ const EditorSection = () => {
 
   const preparePayload = () => {
     const content = textContent.trim();
-    const payload = {
+    const data = {
       content,
       language: selectedLanguage.value,
       duration,
       hasPassword: !!password.trim(),
     };
 
-    const parsed = pasteSchema.safeParse(payload);
+    const parsed = pasteSchema.safeParse(data);
     if (!parsed.success) throw new PasteValidationError(parsed.error.issues);
 
-    const { cipherText } = encryptText(content, password);
-    return { ...payload, content: cipherText };
+    const { cipherText, hashSecret } = encryptText(content, password);
+    const payload = {
+      ...data,
+      content: cipherText
+    }
+    
+    return { payload, hashSecret };
   };
 
   const submitPaste = async () => {
-    const payload = preparePayload();
+    const { payload, hashSecret } = preparePayload();
 
-    const res = await fetch("/api/paste", {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/paste`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -87,15 +98,21 @@ const EditorSection = () => {
       throw new Error(message);
     }
 
-    return res.json();
+    const { uuid } = await res.json()
+    return {
+      uuid,
+      hashSecret
+    }
   };
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
-      const { id } = await submitPaste();
+      const { uuid, hashSecret } = await submitPaste();
       toast.success("Paste created!");
-      // TODO: redirect if needed
+      const to = `/view/${uuidSecretToSlug(uuid, hashSecret)}`
+      setFlash(to)
+      router.push(to)
     } catch (error) {
       if (error instanceof PasteValidationError) {
         error.issues.forEach((issue) => toast.error(issue.message));
@@ -136,7 +153,7 @@ const EditorSection = () => {
 
       <div className="card-body">
         <TextEditor
-          extension={selectedLanguage.extension}
+          language={selectedLanguage.value}
           value={textContent}
           onChange={handleEditorChange}
         />
