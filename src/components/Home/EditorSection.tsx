@@ -89,7 +89,7 @@ const EditorSection = () => {
 
       const { id } = await response.json();
       toast.success("Paste created!");
-      // You can redirect to /paste/${id} or similar here
+      
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Unexpected error");
     } finally {
