@@ -11,10 +11,10 @@ export interface PasteTable {
   uuid: string
   content: string 
   language: string 
-  hasPassword: boolean
+  hasPassword: ColumnType<boolean, boolean | number, boolean | number>
   views: number
   duration: number
-  createdAt: ColumnType<Date>,
+  createdAt: Generated<Date>,
 }
 
 export type Paste = Selectable<PasteTable>

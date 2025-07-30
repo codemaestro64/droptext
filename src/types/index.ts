@@ -1,7 +1,7 @@
 import { LanguageSupport, StreamLanguage } from "@codemirror/language"
 
 export interface SelectInputOption {
-  value: any;
+  value: string | number;
   label: string;
 }
 
@@ -11,7 +11,7 @@ export interface LanguageOption {
   extension: () => LanguageSupport | StreamLanguage<unknown> | null
 }
 
-export interface ExpirationOption {
+export interface DurationOption {
   value: number 
   label: string
 }

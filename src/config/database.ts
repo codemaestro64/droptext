@@ -2,6 +2,8 @@ import { config } from 'dotenv'
 import { Kysely, SqliteDialect } from 'kysely'
 import SQLite from 'better-sqlite3'
 import { Database } from '@/types/database'
+import * as fs from 'fs'
+import * as path from 'path'
 
 config()
 
@@ -17,11 +19,24 @@ let sqliteInstance: SQLite.Database | null = null
 
 export function getDbConn(): Kysely<Database> {
   if (!dbInstance) {
+    if (mode === 'file') {
+      if (!filePath) {
+        throw new Error(`DATABASE_PATH must be set in file mode`)
+      }
+
+      const dir = path.dirname(filePath)
+      if (!fs.existsSync(dir)) {
+        console.log("database directory does not exist. creating...")
+        fs.mkdirSync(dir, { recursive: true })
+      }
+    }
+
     sqliteInstance = new SQLite(mode === 'memory' ? ':memory:' : filePath)
     dbInstance = new Kysely<Database>({
       dialect: new SqliteDialect({ database: sqliteInstance }),
     })
   }
+
   return dbInstance
 }
 

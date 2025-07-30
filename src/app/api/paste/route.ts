@@ -1,24 +1,47 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { findPaste } from '@/database/pasteRepository';
+import { NextRequest, NextResponse } from 'next/server';
+import { createPaste } from '@/database/pasteRepository';
+import { pasteSchema } from '@/schemas/paste.schema';
+import { generateUUID } from '@/utils';
+import { NewPaste } from '@/types/database';
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    const res = await findPaste("ddd")
-    console.log(res)
-
-    const { content, language, expiration, hasPassword } = body;
-
-    if (!content || !language) {
-      return NextResponse.json({ error: 'Missing content or language' }, { status: 400 });
+    const parsed = pasteSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        {
+          error: 'Validation error',
+          issues: parsed.error.issues,
+          type: 'validation',
+        },
+        { status: 400 }
+      );
     }
 
-    // simulate saving
-    const pasteId = Math.random().toString(36).substring(2, 8); // e.g. "abc123"
+    const { content, language, hasPassword, duration } = parsed.data;
 
-    return NextResponse.json({ id: pasteId }, { status: 201 });
-  } catch (e) {
-    return NextResponse.json({ error: 'Server error' + e }, { status: 500 });
+    const newPaste: NewPaste = {
+      uuid: generateUUID(10),
+      views: 0,
+      content,
+      language,
+      hasPassword: hasPassword ? 1 : 0,
+      duration,
+    };
+    
+    const res = await createPaste(newPaste);
+
+    return NextResponse.json({ uuid: res.uuid }, { status: 201 });
+  } catch (error) {
+    console.error('Paste creation failed:', error);
+    return NextResponse.json(
+      {
+        error: 'Internal Server Error',
+        type: 'server',
+      },
+      { status: 500 }
+    );
   }
 }
