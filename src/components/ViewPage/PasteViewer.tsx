@@ -10,6 +10,8 @@ import { decryptText } from "@/utils/encryption"
 import InfoCard from "../InfoCard"
 import CopyButton from "../CopyButton"
 import { getTimeRemaining } from "@/utils"
+import PasswordModal from "./PasswordModal"
+import { toast } from "react-toastify"
 
 interface PasteViewerProps {
   paste: Paste
@@ -20,48 +22,84 @@ const PasteViewer = ({ paste, secret }: PasteViewerProps) => {
   const [decryptedPaste, setDecryptedPaste] = useState("")
   const selectedLanguage = SUPPORTED_LANGUAGES.find(lang => lang.value === paste.language)
   const [timeRemaining, setTimeRemaining] = useState("")
-  const [pasteURL, setPasteURL] = useState("");
+  const [documentURL, setDocumentURL] = useState("");
+  const [openPasswordModal, setOpenPasswordModal] = useState(false)
+  const [isPasswordDecrypting, setIsPasswordDecrypting] = useState(false)
+
+  const handlePasswordSubmit = async (password: string) => {
+    if (!password.trim()) {
+      toast.error("Password cannot be empty")
+      return
+    }
+    setIsPasswordDecrypting(true)
+
+    try {
+      const decryptedText = await decryptText(paste.content, secret, password)
+      setDecryptedPaste(decryptedText)
+      setOpenPasswordModal(false)
+      toast.success("Success")
+    } catch {
+      toast.error("Incorrect Password")
+    } finally {
+      setIsPasswordDecrypting(false)
+    }
+  }
+
+  const prepare = async () => {
+    setTimeRemaining(getTimeRemaining(paste.expiresAt))
+    setDocumentURL(window.location.href);
+
+    if (!paste.hasPassword) {
+      const content = await decryptText(paste.content, secret, "")
+      setDecryptedPaste(content)
+      return
+    } 
+
+    setOpenPasswordModal(true)
+  }
 
   useEffect(() => {
-    const pasteDate = new Date(paste.createdAt + "Z")
-
-    setTimeRemaining(getTimeRemaining(pasteDate, paste.duration))
-    setPasteURL(window.location.href);
-    const content = decryptText(paste.content, secret, "")
-    setDecryptedPaste(content)
+    prepare()
   }, [])
 
 
   return (
     <>
-      {paste.views === 1 && (
+      <PasswordModal 
+        isSubmitting={isPasswordDecrypting}
+        isOpen={openPasswordModal} 
+        onSubmit={handlePasswordSubmit}
+      />
+      {paste.views === 0 && (
         <InfoCard variant="success">
           <div className="flex flex-row gap-3">
             <div>Document URL: </div>
-            <a href={pasteURL} target="__blank">{pasteURL}</a>
+            <a href={documentURL} target="__blank">{documentURL}</a>
             <CopyButton 
-              copyText={window.location.href}
+              copyText={documentURL}
             />
           </div>
         </InfoCard>
       )}
 
-      {paste.views === 0 && (
+      <div className="content">
         <InfoCard variant="info">
           This document will expire after {timeRemaining}
         </InfoCard>
-      )}
 
-      <section className="card backdrop-blur-lg rounded-2xl shadow-2xl border-color overflow-hidden mb-8">
-        <div className="card-body">
-          <TextEditor
-            language={selectedLanguage?.value as string}
-            value={decryptedPaste}
-            editable={false}
-            height="auto"
-          />
-        </div>
-      </section>
+        {decryptedPaste && (
+          <section className="card backdrop-blur-lg rounded-2xl shadow-2xl border-color overflow-hidden mb-8">
+            <div className="card-body">
+              <TextEditor
+                language={selectedLanguage?.value as string}
+                value={decryptedPaste}
+                editable={false}
+                height="auto"
+              />
+            </div>
+          </section>
+        )}
+      </div>
     </>
   )
 }

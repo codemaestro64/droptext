@@ -59,7 +59,7 @@ const EditorSection = () => {
     updateStats("");
   };
 
-  const preparePayload = () => {
+  const preparePayload = async () => {
     const content = textContent.trim();
     const data = {
       content,
@@ -71,7 +71,7 @@ const EditorSection = () => {
     const parsed = pasteSchema.safeParse(data);
     if (!parsed.success) throw new PasteValidationError(parsed.error.issues);
 
-    const { cipherText, hashSecret } = encryptText(content, password);
+    const { cipherText, hashSecret } = await encryptText(content, password);
     const payload = {
       ...data,
       content: cipherText
@@ -81,7 +81,7 @@ const EditorSection = () => {
   };
 
   const submitPaste = async () => {
-    const { payload, hashSecret } = preparePayload();
+    const { payload, hashSecret } = await preparePayload();
 
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/paste`, {
       method: "POST",

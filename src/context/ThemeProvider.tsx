@@ -1,18 +1,7 @@
 'use client'
 
-import { useTheme } from "@/hooks/useTheme"
 import React, { useState, useEffect, createContext } from 'react';
 import { Geist, Geist_Mono } from "next/font/google";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 
 type Theme = 'theme-light' | 'theme-dark';
@@ -44,7 +33,7 @@ const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
-      <div className={`${theme} app min-h-screen`}>
+      <div className={`${theme} app min-h-screen relative`} id="app">
         {children}
       </div>
     </ThemeContext.Provider>

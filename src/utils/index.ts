@@ -23,12 +23,8 @@ export const editorExtensionsFromLanguage = (language: string) => {
   return ext ? [ext] : []
 }
 
-export const getTimeRemaining = (baseDate: Date, minutesToAdd: number): string => {
-  if (minutesToAdd === 0) {
-    return "first read";
-  }
-
-  const futureDate = new Date(baseDate.getTime() + minutesToAdd * 60_000);
+export const getTimeRemaining = (expiresAt: number): string => {
+  const futureDate = new Date(expiresAt);
   const now = new Date();
 
   const diffMs = futureDate.getTime() - now.getTime();
@@ -47,3 +43,8 @@ export const getTimeRemaining = (baseDate: Date, minutesToAdd: number): string =
   if (totalHours >= 1) return `${totalHours} hour${totalHours > 1 ? "s" : ""}`;
   return `${totalMinutes} minute${totalMinutes > 1 ? "s" : ""}`;
 };
+
+export const addMinutesToNow = (minutesToAdd: number): Date => {
+  const newDate = new Date().getTime() + minutesToAdd * 60_000
+  return new Date(newDate)
+} 

@@ -12,9 +12,10 @@ export interface PasteTable {
   content: string 
   language: string 
   hasPassword: ColumnType<boolean, boolean | number, boolean | number>
+  burnAfterReading:  ColumnType<boolean, boolean | number, boolean | number>
   views: number
-  duration: number
-  createdAt: Generated<Date>,
+  expiresAt: number
+  createdAt: number
 }
 
 export type Paste = Selectable<PasteTable>

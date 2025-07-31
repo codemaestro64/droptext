@@ -21,6 +21,7 @@ export const POST = async (req: NextRequest) => {
     }
 
     const { content, language, hasPassword, duration } = parsed.data;
+    const now = Date.now()
 
     const newPaste: NewPaste = {
       uuid: generateUUID(10),
@@ -28,7 +29,9 @@ export const POST = async (req: NextRequest) => {
       content,
       language,
       hasPassword: hasPassword ? 1 : 0,
-      duration,
+      burnAfterReading: !duration ? 1 : 0,
+      expiresAt: now + duration * 60_000,
+      createdAt: now
     };
     
     const res = await createPaste(newPaste);

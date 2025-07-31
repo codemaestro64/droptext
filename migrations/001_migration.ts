@@ -10,13 +10,12 @@ export async function up(db: Kysely<Database>): Promise<void> {
     .addColumn("content", "text", (col) => col.notNull())
     .addColumn("language", "text", (col) => col.notNull())
     .addColumn("hasPassword", "boolean", (col) => col.notNull())
+    .addColumn("burnAfterReading", "boolean", (col) => col.notNull())
     .addColumn("views", "integer", (col) => 
       col.notNull().defaultTo(0)
     )
-    .addColumn("duration", "integer", (col) => col.notNull())
-    .addColumn("createdAt", "datetime", (col) =>
-      col.notNull().defaultTo(sql`CURRENT_TIMESTAMP`)
-    )
+    .addColumn('expiresAt', 'integer', (col) => col.notNull())
+    .addColumn("createdAt", "integer", (col) => col.notNull())
     .execute();
 }
 

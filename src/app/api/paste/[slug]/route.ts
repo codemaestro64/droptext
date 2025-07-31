@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Paste } from '@/types/database';
 import { findPaste } from '@/database/pasteRepository';
 
 type Params = { slug: string };
@@ -9,7 +8,6 @@ export async function GET(req: NextRequest, context: { params: Promise<Params> }
 
   try {
     const paste = await findPaste(slug); 
-    console.log(paste)
     if (!paste) {
       return NextResponse.json({ error: 'Paste not found' }, { status: 404 });
     }

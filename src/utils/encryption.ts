@@ -12,19 +12,17 @@ const fromBase64Url = (b64url: string): Uint8Array => {
   return new Uint8Array(atob(base64).split('').map(c => c.charCodeAt(0)));
 };
 
-const deriveKey = (key: Uint8Array, password: string): Uint8Array => {
-  const pwdBytes = utf8ToBytes(password);
-  const derived = new Uint8Array(32);
-  for (let i = 0; i < 32; i++) {
-    derived[i] = (key[i % key.length] ^ pwdBytes[i % pwdBytes.length]) % 256;
-  }
-  return derived;
+export const deriveKey = async (key: Uint8Array, password: string): Promise<Uint8Array> => {
+  const encoder = new TextEncoder();
+  const data = new Uint8Array([...key, ...encoder.encode(password)]);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  return new Uint8Array(hashBuffer);
 };
 
-export const encryptText = (text: string, password: string) => {
+export const encryptText = async(text: string, password: string) => {
   const key = randomBytes(32); 
   const finalKey = password.trim()
-    ? deriveKey(key, password)
+    ? await deriveKey(key, password)
     : key;
 
   const nonce = randomBytes(12);
@@ -38,7 +36,7 @@ export const encryptText = (text: string, password: string) => {
   };
 };
 
-export const decryptText = (encryptedText: string, hashSecret: string, password: string): string => {
+export const decryptText = async (encryptedText: string, hashSecret: string, password: string): Promise<string> => {
   const [keyB64, nonceB64] = hashSecret.split('.');
   if (!keyB64 || !nonceB64) {
     throw new Error("Invalid hashSecret format");
@@ -48,7 +46,7 @@ export const decryptText = (encryptedText: string, hashSecret: string, password:
   const nonce = fromBase64Url(nonceB64);
 
   const key = password.trim()
-    ? deriveKey(rawKey, password)
+    ? await deriveKey(rawKey, password)
     : rawKey;
 
   const aes = gcm(key, nonce);
