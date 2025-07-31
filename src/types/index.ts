@@ -15,3 +15,5 @@ export interface DurationOption {
   value: number 
   label: string
 }
+
+export type BgVariants = "primary" | "success" | "info" | "error"

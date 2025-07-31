@@ -45,21 +45,21 @@ const PasteViewer = ({ paste, secret }: PasteViewerProps) => {
     }
   }
 
-  const prepare = async () => {
-    setTimeRemaining(getTimeRemaining(paste.expiresAt))
-    setDocumentURL(window.location.href);
-
-    if (!paste.hasPassword) {
-      const content = await decryptText(paste.content, secret, "")
-      setDecryptedPaste(content)
-      return
-    } 
-
-    setOpenPasswordModal(true)
-  }
-
   useEffect(() => {
-    prepare()
+    const setData = async () => {
+      setTimeRemaining(getTimeRemaining(paste.expiresAt))
+      setDocumentURL(window.location.href);
+
+      if (!paste.hasPassword) {
+        const content = await decryptText(paste.content, secret, "")
+        setDecryptedPaste(content)
+        return
+      } 
+
+      setOpenPasswordModal(true)
+    }
+
+    setData()
   }, [])
 
 

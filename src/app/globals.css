@@ -128,6 +128,10 @@
     background-color: var(--color-primary-hover);
   }
 
+  .btn-info {
+    background-color: var(--color-bg-info);
+  }
+
   .btn-danger {
     background-color: var(--color-danger);
     color: var(--color-text-main);

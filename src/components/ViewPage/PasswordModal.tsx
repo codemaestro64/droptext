@@ -2,6 +2,7 @@ import Modal from 'react-modal'
 import { Unlock } from 'lucide-react';
 import TextInput from '../TextInput';
 import { useState } from 'react';
+import Button from '../Button';
 
 interface PasswordModalProps {
   isOpen: boolean
@@ -43,14 +44,14 @@ const PasswordModal = ({ isOpen, onSubmit, isSubmitting }: PasswordModalProps) =
         type="password" 
         className="w-[100%] my-2" 
       />
-      <button
+      <Button 
         onClick={handleSubmit}
         disabled={isSubmitting}
-        className="btn-primary text-white px-6 py-2 rounded-lg flex items-center font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+        className="text-white px-6"
       >
         <Unlock className="w-4 h-4" />
         <span>{isSubmitting ? "Submitting..." : "Submit"}</span>
-      </button>
+      </Button>
     </Modal>
   )
 }
