@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { findPaste } from '@/database/pasteRepository';
+import { deletePaste, findPaste } from '@/database/pasteRepository';
 
 type Params = { slug: string };
 
@@ -12,8 +12,18 @@ export async function GET(req: NextRequest, context: { params: Promise<Params> }
       return NextResponse.json({ error: 'Paste not found' }, { status: 404 });
     }
 
+    const responsePaste = paste
+
+    if (paste.burnAfterReading && paste.views == 1) {
+      await deletePaste(slug)
+    } else if (paste.expiresAt < Date.now()) {
+      
+    }
+
+    
+
     // TODO: increase counter or delete if applicable
-    return NextResponse.json(paste, { status: 200 });
+    return NextResponse.json(responsePaste, { status: 200 });
 
   } catch (error) {
     console.error('Paste fetching failed:', error);
