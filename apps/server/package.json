@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "tsc && cp -r drizzle dist/",
+    "build": "tsc",
     "start": "node dist/index.js",
     "typecheck": "tsc --noEmit"
   },
@@ -16,13 +16,14 @@
     "@fastify/cors": "^11.2.0",
     "@libsql/client": "^0.15.15",
     "@repo/config": "workspace:*",
+    "@repo/db-schema": "workspace:*",
     "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
-    "@repo/db-schema": "workspace:*",
     "dotenv": "^17.2.3",
     "drizzle-kit": "^0.31.8",
     "drizzle-orm": "^0.45.1",
     "fastify": "^5.0.0",
+    "fastify-type-provider-zod": "^6.1.0",
     "zod": "^4.3.4"
   },
   "devDependencies": {

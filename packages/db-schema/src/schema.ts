@@ -1,5 +1,4 @@
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
-import { sql } from "drizzle-orm";
 import { LANGUAGE_VALUES, type LanguageValue } from "@repo/config";
 
 export const pastesTable = sqliteTable("pastes", {
