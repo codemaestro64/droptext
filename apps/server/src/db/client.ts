@@ -1,36 +1,87 @@
 import { drizzle, type LibSQLDatabase } from "drizzle-orm/libsql";
 import { createClient, type Client } from "@libsql/client";
+import { pushSQLiteSchema } from "drizzle-kit/api";
+import * as schema from "@repo/db-schema";
+import { log } from "../util/log.js";
 
-let db: LibSQLDatabase | null = null;
-let client: Client | null = null;
+export class Database {
+  private static instance: Database;
+  private _db: LibSQLDatabase<typeof schema> | null = null;
+  private _client: Client | null = null;
+  private isInitializing = false;
 
-export const initDb = (): LibSQLDatabase => {
-  if (db) return db;
+  private constructor() {}
 
-  const url = process.env.DB_FILE_NAME;
-
-  if (!url) {
-    throw new Error("DB_FILE_NAME is not set");
+  public static getInstance(): Database {
+    if (!Database.instance) {
+      Database.instance = new Database();
+    }
+    return Database.instance;
   }
 
-  try {
-    client = createClient({ url });
-    db = drizzle(client);
+  public async initialize(): Promise<void> {
+    if (this._db) return;
+    if (this.isInitializing) return;
 
-    return db;
-  } catch (err) {
-    throw new Error(
-      `Failed to initialize database: ${
-        err instanceof Error ? err.message : String(err)
-      }`
-    );
+    this.isInitializing = true;
+    const url = process.env.DB_FILE_NAME;
+
+    if (!url) {
+      this.isInitializing = false;
+      throw new Error("PRODUCTION_ERROR: DB_FILE_NAME environment variable is missing.");
+    }
+
+    try {
+      this._client = createClient({ url });
+      this._db = drizzle(this._client, { schema });
+      
+      log.info("Database connection initialized successfully.");
+    } catch (err) {
+      this._client = null;
+      this._db = null;
+      log.error("Failed to initialize database connection", err);
+      throw err;
+    } finally {
+      this.isInitializing = false;
+    }
+  }
+
+  public async applySchema(): Promise<void> {
+    try {
+      log.info("Schema synchronization started...");
+
+      const { apply } = await pushSQLiteSchema(schema, this.db);
+      await apply();
+      
+      log.info("Database schema synchronized successfully.");
+    } catch (error) {
+      log.error("Critical error during schema synchronization:", error);
+      throw error;
+    }
+  }
+
+  public get db(): LibSQLDatabase<typeof schema> {
+    if (!this._db) {
+      throw new Error("Database accessed before initialization. Call initialize() first.");
+    }
+    return this._db;
+  }
+
+  public getClient(): Client {
+    if (!this._client) {
+      throw new Error("LibSQL client accessed before initialization.");
+    }
+    return this._client;
+  }
+
+  public async close(): Promise<void> {
+    if (this._client) {
+      this._client.close();
+      this._client = null;
+      this._db = null;
+      log.info("Database connection closed.");
+    }
   }
 }
 
-export const getDb = (): LibSQLDatabase => {
-  if (!db) {
-    throw new Error("Database not initialized. Call initDb() first.");
-  }
-  return db;
-}
-
+export const dbManager = Database.getInstance();

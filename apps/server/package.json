@@ -1,11 +1,11 @@
 {
-  "name": "@droptext/server",
+  "name": "@repo/server",
   "version": "1.0.0",
   "description": "",
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "tsc",
+    "build": "tsc && cp -r drizzle dist/",
     "start": "node dist/index.js",
     "typecheck": "tsc --noEmit"
   },
@@ -15,7 +15,12 @@
   "dependencies": {
     "@fastify/cors": "^11.2.0",
     "@libsql/client": "^0.15.15",
+    "@repo/config": "workspace:*",
+    "@repo/eslint-config": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
+    "@repo/db-schema": "workspace:*",
     "dotenv": "^17.2.3",
+    "drizzle-kit": "^0.31.8",
     "drizzle-orm": "^0.45.1",
     "fastify": "^5.0.0",
     "zod": "^4.3.4"

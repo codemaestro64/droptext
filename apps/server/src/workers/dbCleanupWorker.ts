@@ -1,4 +1,5 @@
-import { getDb } from "../db/client.js";
+import { dbManager } from "../db/client.js";
+import { log } from "../util/log.js";
 
 const INTERVAL_MS = 60_000; // 1 minute
 
@@ -9,7 +10,6 @@ export const startDBCleanupWorker = () => {
 
   const run = async () => {
     try {
-      const db = getDb();
       const now = Date.now();
 
       // EXAMPLE — adapt to your schema
@@ -17,9 +17,9 @@ export const startDBCleanupWorker = () => {
       //   .delete(pastes)
       //   .where(lte(pastes.expiresAt, now));
 
-      console.log("ran expired pastes cleanup");
+      log.info("Ran expired pastes cleanup");
     } catch (err) {
-      console.error("cleanup worker failed", err);
+      log.error("Cleanup worker failed", err);
     }
   };
 

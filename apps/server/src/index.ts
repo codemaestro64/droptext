@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { buildServer } from "./server.js";
-import { initDb } from "./db/client.js";
+import { dbManager } from "./db/client.js";
 import { log } from "./util/log.js";
 import { env, DEFAULT_PORT } from "./env.js";
 import routes from "./routes.js";
@@ -33,7 +33,8 @@ const bootstrap = async () => {
 
   try {
     log.info("Initializing database");
-    initDb();
+    await dbManager.initialize()
+    await dbManager.applySchema()
 
     log.info("Building server");
     app = buildServer();

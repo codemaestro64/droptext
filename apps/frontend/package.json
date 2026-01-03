@@ -1,5 +1,5 @@
 {
-  "name": "frontend",
+  "name": "@repo/frontend",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -14,9 +14,12 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "tailwindcss": "^4.1.18",
-    "@droptext/server": "workspace:*"
+    "@repo/server": "workspace:*"
   },
   "devDependencies": {
+    "@repo/eslint-config": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
+    "@repo/config": "workspace:*",
     "@eslint/js": "^9.39.1",
     "@types/node": "^24.10.1",
     "@types/react": "^19.2.5",
