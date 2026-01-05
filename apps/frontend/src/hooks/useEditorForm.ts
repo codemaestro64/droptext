@@ -1,6 +1,8 @@
 import { useState, useCallback } from "react";
 import { SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE } from "@repo/config";
-
+import { insertPasteSchema, type InsertPaste } from "@repo/db-schema"
+import { useCreatePaste } from "./useCreatePaste";
+import { encryptText } from "../utils/encryption";
 export interface EditorStats {
   characters: number;
   words: number;
@@ -31,14 +33,13 @@ export interface EditorFormReturn {
   actions: {
     handleEditorChange: (val: string) => void;
     clearContent: () => void;
-    handleSubmit: () => Promise<void>;
+    handleSubmit: () => Promise<{ uuid: string, hashSecret: string } | undefined>;
   };
 }
 
 export const useEditorForm = (): EditorFormReturn => {
   const [textContent, setTextContent] = useState('');
   const [password, setPassword] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState(
     SUPPORTED_LANGUAGES.find(l => l.value === DEFAULT_LANGUAGE) || SUPPORTED_LANGUAGES[0]
   );
@@ -51,9 +52,9 @@ export const useEditorForm = (): EditorFormReturn => {
   const lang = SUPPORTED_LANGUAGES.find(l => l.value === val);
     if (lang) setSelectedLanguage(lang);
   }, []);
-  
-  
 
+  const { mutate, isPending } = useCreatePaste()
+  
   const handleEditorChange = useCallback((val: string) => {
     setTextContent(val);
     setStats({
@@ -68,14 +69,49 @@ export const useEditorForm = (): EditorFormReturn => {
     handleEditorChange("");
   };
 
-  const handleSubmit = async () => {
-    setIsSubmitting(true);
-    // Add API logic here
-    setIsSubmitting(false);
+  const preparePayload = async () => {
+    const data: InsertPaste = {
+      content: textContent.trim(),
+      language: selectedLanguage.value,
+      duration: duration,
+      hasPassword: !!password.trim(),
+    }
+
+    const parsed = insertPasteSchema.safeParse(data)
+    if (!parsed.success) {
+      throw parsed.error.flatten().fieldErrors
+    }
+
+    const { cipherText, hashSecret } = await encryptText(data.content, password);
+
+    const payload = {
+      ...data,
+      content: cipherText
+    }
+
+    return { payload, hashSecret }
+  }
+
+  const handleSubmit = async (): Promise<{ uuid: string; hashSecret: string } | undefined> => {
+    return new Promise((resolve, reject) => {
+      mutate(
+        { preparePayload },
+        {
+          onSuccess: (data) => {
+            preparePayload()
+              .then(({ hashSecret }) => {
+                resolve({ uuid: data.uuid, hashSecret });
+              })
+              .catch((err) => reject(err));
+          },
+          onError: (err) => reject(err),
+        }
+      );
+    });
   };
 
   return {
-    state: { textContent, password, selectedLanguage, duration, stats, isSubmitting },
+    state: { textContent, password, selectedLanguage, duration, stats, isSubmitting: isPending },
     setters: { 
       setPassword: setPasswordStable, 
       setSelectedLanguage: setLanguageStable, 

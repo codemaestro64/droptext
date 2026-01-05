@@ -1,7 +1,10 @@
+import { useRef, useState } from "react";
 import { Zap, ShieldCheck, Code, Delete, Send } from "lucide-react";
 import { SUPPORTED_LANGUAGES, DURATION_OPTIONS } from "@repo/config";
 import { useEditorForm } from "../hooks/useEditorForm";
+import { uuidSecretToSlug } from "../utils";
 
+import PasteLinkModal from "../components/modals/PasteLinkModal";
 import TextInput from "../components/TextInput";
 import SelectInput from "../components/SelectInput";
 import CodeEditor from "../components/CodeEditor";
@@ -44,79 +47,111 @@ const FeatureCard = ({ icon, title, content }: Feature) => (
 
 const IndexPage = () => {
   const { state, setters, actions } = useEditorForm();
+  const pasteLinkModalRef = useRef<HTMLDialogElement>(null);
+  const [pasteLink, setPasteLink] = useState<string | undefined>(undefined);
+
+  const handleSubmit = async () => {
+    try {
+      const result = await actions.handleSubmit();
+      if (!result?.uuid) return;
+
+      const { uuid, hashSecret } = result;
+
+      const link = `${window.location.origin}/view/${uuidSecretToSlug(uuid, hashSecret)}`
+      setPasteLink(link);
+
+      pasteLinkModalRef.current?.showModal();
+
+      actions.clearContent();
+    } catch (err) {
+      console.error("Failed to create paste:", err);
+    }
+  };
+
+  const handleCloseModal = () => {
+    pasteLinkModalRef.current?.close();
+    setPasteLink(undefined);
+  };
 
   return (
-    <div className="py-6 space-y-12">
-      <div className="text-center">
-        <h2 className="text-4xl font-bold text-primary mb-4">Share Text Privately</h2>
-        <p className="text-xl text-secondary">A modern, secure, and elegant way to share snippets</p>
-      </div>
+    <>
+      <PasteLinkModal 
+        ref={pasteLinkModalRef} 
+        onClose={handleCloseModal} 
+        link={pasteLink}
+      />
+      <div className="py-6 space-y-12">
+        <div className="text-center">
+          <h2 className="text-4xl font-bold text-primary mb-4">Share Text Privately</h2>
+          <p className="text-xl text-secondary">A modern, secure, and elegant way to share snippets</p>
+        </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-3 sm:px-6 lg:px-8">
-        <div className="border border-secondary/20 backdrop-blur-lg rounded-2xl shadow-2xl overflow-hidden">
-          {/* Toolbar */}
-          <div className="border-b border-secondary/20 p-4 flex flex-col sm:flex-row gap-4 justify-between">
-            <TextInput 
-              type="password" 
-              value={state.password} 
-              onChange={(e) => setters.setPassword(e.target.value)} 
-              placeholder="Optional password" 
+        <div className="max-w-7xl mx-auto px-4 py-3 sm:px-6 lg:px-8">
+          <div className="border border-secondary/20 backdrop-blur-lg rounded-2xl shadow-2xl overflow-hidden">
+            {/* Toolbar */}
+            <div className="border-b border-secondary/20 p-4 flex flex-col sm:flex-row gap-4 justify-between">
+              <TextInput 
+                type="password" 
+                value={state.password} 
+                onChange={(e) => setters.setPassword(e.target.value)} 
+                placeholder="Optional password" 
+              />
+              <div className="flex gap-2">
+                <SelectInput 
+                  value={state.selectedLanguage.value} 
+                  options={SUPPORTED_LANGUAGES} 
+                  onChange={(e) => setters.setSelectedLanguage(e.target.value)} 
+                />
+                <SelectInput 
+                  className="w-90"
+                  value={state.duration} 
+                  options={DURATION_OPTIONS} 
+                  onChange={(e) => setters.setDuration(Number(e.target.value))} 
+                />
+              </div>
+            </div>
+
+            <CodeEditor 
+              language={state.selectedLanguage.value} 
+              value={state.textContent} 
+              onChange={actions.handleEditorChange} 
             />
-            <div className="flex gap-2">
-              <SelectInput 
-                value={state.selectedLanguage.value} 
-                options={SUPPORTED_LANGUAGES} 
-                onChange={(e) => setters.setSelectedLanguage(e.target.value)} 
-              />
-              <SelectInput 
-                className="w-90"
-                value={state.duration} 
-                options={DURATION_OPTIONS} 
-                onChange={(e) => setters.setDuration(Number(e.target.value))} 
-              />
-            </div>
-          </div>
-
-          <CodeEditor 
-            language={state.selectedLanguage.value} 
-            value={state.textContent} 
-            onChange={actions.handleEditorChange} 
-          />
         
-          {/* Footer */}
-          <div className="border-t border-secondary/20 p-4 flex flex-col sm:flex-row gap-4 justify-between items-center">
-            <div className="flex gap-4 text-sm text-muted">
-              <span>Lines: {state.stats.lines}</span>
-              <span>Words: {state.stats.words}</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <button 
-                onClick={actions.clearContent} 
-                disabled={!state.stats.characters} 
-                className="btn btn-primary flex items-center gap-2"
-              >
-                <Delete className="w-4 h-4" /> <span>Clear</span>
-              </button>
-              <button 
-                onClick={actions.handleSubmit} 
-                disabled={state.isSubmitting || !state.stats.characters} 
-                className="btn btn-secondary flex items-center gap-2" 
-              >
-                <Send className="w-4 h-4" /> <span>{state.isSubmitting ? "Submitting..." : "Submit"}</span>
-              </button>
+            {/* Footer */}
+            <div className="border-t border-secondary/20 p-4 flex flex-col sm:flex-row gap-4 justify-between items-center">
+              <div className="flex gap-4 text-sm text-muted">
+                <span>Lines: {state.stats.lines}</span>
+                <span>Words: {state.stats.words}</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <button 
+                  onClick={actions.clearContent} 
+                  disabled={!state.stats.characters} 
+                  className="btn btn-primary flex items-center gap-2"
+                >
+                  <Delete className="w-4 h-4" /> <span>Clear</span>
+                </button>
+                <button 
+                  onClick={handleSubmit} 
+                  disabled={state.isSubmitting || !state.stats.characters} 
+                  className="btn btn-secondary flex items-center gap-2" 
+                >
+                  <Send className="w-4 h-4" /> <span>{state.isSubmitting ? "Submitting..." : "Submit"}</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <div className="py-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-3 gap-6">
-            {FEATURES.map(f => <FeatureCard key={f.title} {...f} />)}
+        <div className="py-6">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid md:grid-cols-3 gap-6">
+              {FEATURES.map(f => <FeatureCard key={f.title} {...f} />)}
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

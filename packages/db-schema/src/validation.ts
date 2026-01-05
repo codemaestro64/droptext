@@ -14,7 +14,7 @@ const baseInsertSchema = createInsertSchema(pastesTable, {
 });
 
 export const insertPasteSchema = baseInsertSchema.extend({
-  duration: z.number().positive("Duration must be a positive number"),
+  duration: z.number().min(0, "Duration must be a positive number"),
   hasPassword: z.boolean(),
 });
 

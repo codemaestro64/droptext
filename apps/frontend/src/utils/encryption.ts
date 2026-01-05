@@ -1,6 +1,5 @@
-import { gcm } from '@noble/ciphers/aes';
-import { utf8ToBytes, bytesToUtf8 } from '@noble/ciphers/utils';
-import { randomBytes } from '@noble/ciphers/webcrypto';
+import { gcm } from '@noble/ciphers/aes.js';
+import { utf8ToBytes, bytesToUtf8, randomBytes } from '@noble/ciphers/utils.js';
 
 const toBase64Url = (buf: Uint8Array) =>
   btoa(String.fromCharCode(...buf))

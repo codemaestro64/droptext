@@ -1,8 +1,9 @@
 import "dotenv/config";
+import { env, DEFAULT_PORT } from "./env.js";
+import cors from "@fastify/cors";
 import { buildServer } from "./server.js";
 import { dbManager } from "./db/client.js";
 import { log } from "./util/log.js";
-import { env, DEFAULT_PORT } from "./env.js";
 import routes from "./routes.js";
 import {
   startDBCleanupWorker,
@@ -38,6 +39,14 @@ const bootstrap = async () => {
 
     log.info("Building server");
     app = buildServer();
+
+    await app.register(cors, {
+      origin:
+        env.NODE_ENV === "production"
+        ? env.CORS_ORIGINS ?? false
+        : env.CORS_ORIGINS ?? ["http://localhost:5173"],
+        credentials: true
+    });
 
     log.info("Registering routes");
     await app.register(routes);
