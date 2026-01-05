@@ -1,20 +1,25 @@
 import { forwardRef } from "react";
 import { Check } from "lucide-react";
+import { useToast } from "../../hooks/useToast";
 
 interface PasteLinkModalProps {
-  link?: string; // optional, only set when opened
+  link?: string;
   onClose?: () => void;
 }
 
 const PasteLinkModal = forwardRef<HTMLDialogElement, PasteLinkModalProps>(
   ({ link, onClose }, ref) => {
+
+    const { showToast } = useToast()
+
     const handleCopy = async () => {
       if (!link) return;
       try {
         await navigator.clipboard.writeText(link);
-        alert("Link copied to clipboard!");
+        showToast("Link copied!", "success")
       } catch (err) {
         console.error("Failed to copy link:", err);
+        showToast("Failed to copy link", "error")
       }
     };
 

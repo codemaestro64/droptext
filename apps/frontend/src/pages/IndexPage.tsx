@@ -8,6 +8,7 @@ import PasteLinkModal from "../components/modals/PasteLinkModal";
 import TextInput from "../components/TextInput";
 import SelectInput from "../components/SelectInput";
 import CodeEditor from "../components/CodeEditor";
+import { useToast } from "../hooks/useToast";
 
 interface Feature {
   icon: React.ReactNode
@@ -49,6 +50,7 @@ const IndexPage = () => {
   const { state, setters, actions } = useEditorForm();
   const pasteLinkModalRef = useRef<HTMLDialogElement>(null);
   const [pasteLink, setPasteLink] = useState<string | undefined>(undefined);
+  const { showToast } = useToast() 
 
   const handleSubmit = async () => {
     try {
@@ -65,6 +67,7 @@ const IndexPage = () => {
       actions.clearContent();
     } catch (err) {
       console.error("Failed to create paste:", err);
+      showToast(`Error saving paste: ${err}`, "error")
     }
   };
 

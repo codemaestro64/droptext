@@ -5,6 +5,7 @@ import ThemeProvider from "./providers/ThemeProvider.js"
 
 import IndexPage from "./pages/IndexPage.js";
 import Layout from "./layout/Layout";
+import { ToastProvider } from "./providers/ToastProvider.js";
 
 
 const queryClient = new QueryClient();
@@ -27,7 +28,9 @@ const App = () => {
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
           <ThemeProvider>
-            <AppRoutes />
+            <ToastProvider>
+              <AppRoutes />
+            </ToastProvider>
           </ThemeProvider>
         </BrowserRouter>
       </QueryClientProvider>

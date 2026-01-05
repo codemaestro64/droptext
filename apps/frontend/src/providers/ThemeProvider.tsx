@@ -1,20 +1,12 @@
 import {
-  createContext,
   useState,
   useEffect,
   type ReactNode,
 } from "react"
 
 import { ThemeDark, ThemeLight } from "../constants"
+import { ThemeContext, type Theme } from "../context/ThemeContext"
 
-type Theme = typeof ThemeLight | typeof ThemeDark
-
-type ThemeContextType = {
-  theme: Theme
-  toggleTheme: () => void
-}
-
-const ThemeContext = createContext<ThemeContextType | null>(null)
 
 const getInitialTheme = (): Theme => {
   if (typeof window === "undefined") return ThemeLight
@@ -42,5 +34,4 @@ const ThemeProvider = ({ children }: { children: ReactNode }) => {
   )
 }
 
-export { ThemeContext }
 export default ThemeProvider
