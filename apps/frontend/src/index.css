@@ -1,83 +1,8 @@
 @import "tailwindcss";
-
-@plugin "daisyui/theme" {
-  name: "droptext-dark";
-  default: true;
-  prefersdark: true;
-  color-scheme: dark;
-
-  /* Base surfaces */
-  --color-base-100: oklch(20% 0.03 255);  
-  --color-base-200: oklch(26% 0.04 255);
-  --color-base-300: oklch(32% 0.05 255);  
-  --color-base-content: oklch(96% 0.01 255);
-
-  /* Primary actions */
-  --color-primary: oklch(62% 0.22 255);  
-  --color-primary-content: oklch(98% 0.01 255);
-
-  /* Secondary actions */
-  --color-secondary: oklch(55% 0.05 255); 
-  --color-secondary-content: oklch(98% 0.01 255);
-
-  /* Accent */
-  --color-accent: oklch(72% 0.18 215);     
-  --color-accent-content: oklch(18% 0.03 255);
-
-  /* Neutral (borders, muted UI) */
-  --color-neutral: oklch(30% 0.04 255);
-  --color-neutral-content: oklch(96% 0.01 255);
-
-  /* Status colors */
-  --color-info: oklch(70% 0.16 220);       
-  --color-success: oklch(65% 0.17 145);  
-  --color-warning: oklch(75% 0.17 65);  
-  --color-error: oklch(62% 0.22 25);
-
-  /* Radius & motion (matching your UI feel) */
-  --radius-box: 1rem;
-  --radius-btn: 0.5rem;
-  --radius-badge: 0.375rem;
-
-  --animation-btn: 0.25s;
-  --animation-input: 0.2s;
-  --btn-focus-scale: 0.98;
-  --border-btn: 1px;
-}
-
-@plugin "daisyui/theme" {
-  name: "codeshare-light";
-  default: false;
-  prefersdark: false;
-  color-scheme: light;
-
-  --color-base-100: oklch(98% 0.01 255);   
-  --color-base-200: oklch(100% 0 0);     
-  --color-base-300: oklch(94% 0.02 255);
-  --color-base-content: oklch(20% 0.03 255); 
-
-  --color-primary: oklch(60% 0.22 255);
-  --color-primary-content: oklch(98% 0.01 255);
-
-  --color-secondary: oklch(55% 0.05 255);
-  --color-secondary-content: oklch(98% 0.01 255);
-
-  --color-accent: oklch(65% 0.18 215);
-  --color-accent-content: oklch(20% 0.03 255);
-
-  --color-neutral: oklch(90% 0.02 255);
-  --color-neutral-content: oklch(20% 0.03 255);
-
-  --color-info: oklch(65% 0.16 220);
-  --color-success: oklch(60% 0.17 145);
-  --color-warning: oklch(70% 0.17 65);
-  --color-error: oklch(60% 0.22 25);
-}
-
-
-@plugin "daisyui" {
-  themes: droptext-dark --default --prefersDark, droptext-light;
-}
 @tailwind base;
 @tailwind components;
-@tailwnd utiliies
+@tailwnd utiliies;
+
+@plugin "daisyui" {
+  themes: all;
+}
