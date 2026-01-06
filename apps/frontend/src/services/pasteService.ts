@@ -9,7 +9,7 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const getErrorMessage = (status: number, serverMsg?: string): string => {
   switch (status) {
     case 401: return "Paste has expired.";
-    case 404: return "We couldn't find that paste. It might have been deleted.";
+    case 404: return "We couldn't find that paste. It might have expired.";
     case 500: return "A server error occurred";
     default: return serverMsg || "An unexpected error occurred.";
   }

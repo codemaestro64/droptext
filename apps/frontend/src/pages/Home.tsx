@@ -1,15 +1,16 @@
 import { useRef, useState } from "react";
+import { motion,type Variants } from "framer-motion";
 import { Zap, ShieldCheck, Code, Delete, Send } from "lucide-react";
 import { SUPPORTED_LANGUAGES, DURATION_OPTIONS } from "@repo/config";
-import { useEditorForm } from "../hooks/useEditorForm";
-import { uuidSecretToSlug } from "../utils";
+import { useEditorForm } from "../hooks/useEditorForm.js";
+import { uuidSecretToSlug } from "../utils/index.js";
 
-import PasteLinkModal from "../components/modals/PasteLinkModal";
-import TextInput from "../components/TextInput";
-import SelectInput from "../components/SelectInput";
-import CodeEditor from "../components/CodeEditor";
-import { useToast } from "../hooks/useToast";
-import { savePaste } from "../services/pasteService";
+import PasteLinkModal from "../components/modals/PasteLinkModal.js";
+import TextInput from "../components/TextInput.js";
+import SelectInput from "../components/SelectInput.js";
+import CodeEditor from "../components/CodeEditor.js";
+import { useToast } from "../hooks/useToast.js";
+import { savePaste } from "../services/pasteService.js";
 
 interface Feature {
   icon: React.ReactNode
@@ -36,7 +37,7 @@ const FEATURES: Feature[] = [
 ]
 
 const FeatureCard = ({ icon, title, content }: Feature) => (
-  <div className="card rounded-xl p-6 py-8 border-color bg-base-200">
+  <div className="card rounded-xl p-6 py-8 border-color bg-base-200 h-full">
     <div className="flex items-center gap-3 mb-4">
       <div className="w-12 h-12 input-bg rounded-lg flex items-center justify-center">
         {icon}
@@ -47,7 +48,7 @@ const FeatureCard = ({ icon, title, content }: Feature) => (
   </div>
 );
 
-const IndexPage = () => {
+const HomePage = () => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const { state, setters, actions } = useEditorForm();
   const pasteLinkModalRef = useRef<HTMLDialogElement>(null);
@@ -81,6 +82,26 @@ const IndexPage = () => {
     setPasteLink(undefined);
   };
 
+  const containerVariants: Variants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 }
+    }
+  };
+
+  const itemVariants: Variants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      transition: { 
+        type: "spring", 
+        stiffness: 100 
+      } 
+    }
+  };
+
   return (
     <>
       <PasteLinkModal 
@@ -88,16 +109,47 @@ const IndexPage = () => {
         onClose={handleCloseModal} 
         link={pasteLink}
       />
-      <div className="py-6 space-y-12">
-        <div className="text-center">
+      <div className="py-6 space-y-12 overflow-x-hidden">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-center"
+        >
           <h2 className="text-4xl font-bold text-primary mb-4">Share Text Privately</h2>
           <p className="text-xl text-secondary">A modern, secure, and elegant way to share snippets</p>
-        </div>
+        </motion.div>
 
-        <div className="max-w-7xl mx-auto px-4 py-3 sm:px-6 lg:px-8">
-          <div className="border border-secondary/20 backdrop-blur-lg rounded-2xl shadow-2xl overflow-hidden">
-            {/* Toolbar */}
-            <div className="border-b border-secondary/20 p-4 flex flex-col sm:flex-row gap-4 justify-between">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4, delay: 0.2 }}
+          className="max-w-7xl mx-auto px-4 py-3 sm:px-6 lg:px-8"
+        >
+          <CodeEditor 
+            language={state.selectedLanguage.value} 
+            value={state.textContent} 
+            onChange={actions.handleEditorChange} 
+            actions={(
+              <div className="flex items-center gap-3">
+                <button 
+                  onClick={actions.clearContent} 
+                  disabled={!state.stats.characters} 
+                  className="btn btn-primary flex items-center gap-2"
+                >
+                  <Delete className="w-4 h-4" /> <span>Clear</span>
+                </button>
+                <button 
+                  onClick={handleSubmit} 
+                  disabled={isSubmitting || !state.stats.characters} 
+                  className="btn btn-secondary flex items-center gap-2" 
+                >
+                  <Send className="w-4 h-4" /> <span>{isSubmitting ? "Submitting..." : "Submit"}</span>
+                </button>
+              </div>
+            )}
+          >
+            <div className="flex flex-col sm:flex-row gap-4 justify-between w-full">
               <TextInput 
                 type="password" 
                 value={state.password} 
@@ -118,44 +170,24 @@ const IndexPage = () => {
                 />
               </div>
             </div>
-
-            <CodeEditor 
-              language={state.selectedLanguage.value} 
-              value={state.textContent} 
-              onChange={actions.handleEditorChange} 
-            />
-        
-            {/* Footer */}
-            <div className="border-t border-secondary/20 p-4 flex flex-col sm:flex-row gap-4 justify-between items-center">
-              <div className="flex gap-4 text-sm text-muted">
-                <span>Lines: {state.stats.lines}</span>
-                <span>Words: {state.stats.words}</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <button 
-                  onClick={actions.clearContent} 
-                  disabled={!state.stats.characters} 
-                  className="btn btn-primary flex items-center gap-2"
-                >
-                  <Delete className="w-4 h-4" /> <span>Clear</span>
-                </button>
-                <button 
-                  onClick={handleSubmit} 
-                  disabled={isSubmitting || !state.stats.characters} 
-                  className="btn btn-secondary flex items-center gap-2" 
-                >
-                  <Send className="w-4 h-4" /> <span>{isSubmitting ? "Submitting..." : "Submit"}</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+          </CodeEditor>
+        </motion.div>
 
         <div className="py-6">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid md:grid-cols-3 gap-6">
-              {FEATURES.map(f => <FeatureCard key={f.title} {...f} />)}
-            </div>
+            <motion.div 
+              variants={containerVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
+              className="grid md:grid-cols-3 gap-6"
+            >
+              {FEATURES.map(f => (
+                <motion.div key={f.title} variants={itemVariants}>
+                  <FeatureCard {...f} />
+                </motion.div>
+              ))}
+            </motion.div>
           </div>
         </div>
       </div>
@@ -163,4 +195,4 @@ const IndexPage = () => {
   );
 };
 
-export default IndexPage
+export default HomePage;

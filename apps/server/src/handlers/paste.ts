@@ -1,4 +1,4 @@
-import { eq, sql } from "drizzle-orm"
+import { and, or, gt, eq } from "drizzle-orm";
 import type { FastifyReply, FastifyRequest } from "fastify";
 import { pastesTable, InsertPaste,  } from "@repo/db-schema"
 import { dbManager } from "../db/client.js";
@@ -30,84 +30,50 @@ export const savePaste = async (req: FastifyRequest<{ Body: InsertPaste}>, reply
   }
 }
 
-export const getPaste = async (
+export const getPaste = async(
   req: FastifyRequest<{ Params: GetPasteParams }>,
   reply: FastifyReply
 ) => {
   const { uuid } = req.params
+  const now = new Date()
 
   try {
-    const now = Date.now()
+    const paste = await dbManager.db
+      .select({
+        uuid: pastesTable.uuid,
+        hasPassword: pastesTable.hasPassword,
+        content: pastesTable.content,
+        language: pastesTable.language,
+        views: pastesTable.views,
+        burnAfterReading: pastesTable.burnAfterReading,
+        createdAt: pastesTable.createdAt,
+        expiresAt: pastesTable.expiresAt,
+      })
+      .from(pastesTable)
+      .where(
+        and(
+          eq(pastesTable.uuid, uuid),
+          or(
+            gt(pastesTable.expiresAt, now),
+            eq(pastesTable.burnAfterReading, true)
+          )
+        )
+      )
+      .get();
 
-    const result = await dbManager.db.transaction(async (tx) => {
-      const paste = await tx
-        .select({
-          uuid: pastesTable.uuid,
-          hasPassword: pastesTable.hasPassword,
-          content: pastesTable.content,
-          language: pastesTable.language,
-          views: pastesTable.views,
-          burnAfterReading: pastesTable.burnAfterReading,
-          createdAt: pastesTable.createdAt,
-          expiresAt: pastesTable.expiresAt,
-        })
-        .from(pastesTable)
-        .where(eq(pastesTable.uuid, uuid))
-        .get()
+    console.log(paste)
 
-      if (!paste) {
-        return { type: "not_found" as const }
-      }
-
-      if (paste.expiresAt && paste.expiresAt.getTime() <= now) {
-       //await tx
-        //  .delete(pastesTable)
-        //  .where(eq(pastesTable.uuid, uuid))
-
-        return { type: "expired" as const }
-      }
-
-      if (paste.burnAfterReading) {
-        await tx
-          .delete(pastesTable)
-          .where(eq(pastesTable.uuid, uuid))
-
-        return {
-          type: "burned" as const,
-          paste,
-        }
-      }
-
-      await tx
-        .update(pastesTable)
-        .set({
-          views: sql`${pastesTable.views} + 1`,
-        })
-        .where(eq(pastesTable.uuid, uuid))
-
-      return {
-        type: "ok" as const,
-        paste: {
-          ...paste,
-          views: (paste.views ?? 0) + 1,
-        },
-      }
-    })
-
-    if (result.type === "not_found") {
+    if (!paste) {
       return reply.status(404).send({ error: "Paste not found" })
     }
 
-    if (result.type === "expired") {
-      return reply.status(410).send({ error: "Paste has expired" })
+    if (paste.burnAfterReading) {
+      await dbManager.db
+        .delete(pastesTable)
+        .where(eq(pastesTable.uuid, uuid))
     }
 
-    if (result.type === "burned") {
-      return reply.send(result.paste)
-    }
-
-    return reply.send(result.paste)
-
+    return reply.send(paste)
   } catch (err) {
     log.error("Error fetching paste", err)
     return reply.status(500).send({ error: "A server error occurred" })

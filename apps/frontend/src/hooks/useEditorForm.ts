@@ -68,6 +68,8 @@ export const useEditorForm = (): EditorFormReturn => {
 
   const clearContent = () => {
     setTextContent("");
+    setPassword("")
+    setDuration(0)
     handleEditorChange("");
   };
 

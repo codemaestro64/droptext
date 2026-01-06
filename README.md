@@ -1,135 +1,97 @@
-# Turborepo starter
+# Droptext 💧
 
-This Turborepo starter is maintained by the Turborepo core team.
+Droptext is a high-performance, privacy-focused text sharing application. It utilizes a **Zero-Knowledge architecture** where data is encrypted on the client-side before ever reaching the server.
 
-## Using this example
+**Repository:** [github.com/codemaestro64/droptext](https://github.com/codemaestro64/droptext)
 
-Run the following command:
+---
 
-```sh
-npx create-turbo@latest
-```
+## 🏗️ Monorepo Structure
 
-## What's inside?
+This project is managed as a monorepo using **Turborepo** for optimized caching and task execution.
 
-This Turborepo includes the following packages/apps:
+### Applications (`apps/`)
+* **frontend**: React + Vite application handling client-side AES-GCM encryption.
+* **server**: Fastify backend for storing and retrieving encrypted text blobs.
 
-### Apps and Packages
+### Shared Packages (`packages/`)
+* **db-schema**: Shared database models and migration files.
+* **config**: Shared application configurations and environment logic.
+* **typescript-config**: Shared base TypeScript configurations.
+* **eslint-config**: Standardized linting rules for the entire repo.
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+---
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+## 🔐 Security Model
 
-### Utilities
+Droptext ensures that the server operator can never read your notes:
 
-This Turborepo has some additional tools already setup for you:
+1. **Client-Side Encryption**: Text is encrypted in the browser using the Web Crypto API.
+2. **The "Zero-Knowledge" Link**: The decryption key is stored in the URL hash fragment (e.g., `droptext.io/v/123#<key>`).
+3. **Privacy**: Browsers do not send the hash fragment to the server, so the decryption key never leaves your device.
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+---
 
-### Build
+## 🛠️ Development
 
-To build all apps and packages, run the following command:
+### Prerequisites
+* Node.js (v18 or higher)
+* pnpm (`npm install -g pnpm`)
 
-```
-cd my-turborepo
+### Installation
 
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
+1. Clone the repository:
+   `git clone https://github.com/codemaestro64/droptext.git`
+   `cd droptext`
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
-```
+2. Install dependencies:
+   `pnpm install`
 
-You can build a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+### Running Locally
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
+To start all applications (frontend and server) simultaneously:
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
+`pnpm dev`
 
-### Develop
+* **Frontend**: http://localhost:5173
+* **Server**: http://localhost:3000
 
-To develop all apps and packages, run the following command:
+To run only a specific app:
+`pnpm turbo run dev --filter=frontend`
 
-```
-cd my-turborepo
+---
 
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
+## 🏗️ Build for Production
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
-```
+### 1. Build the Monorepo
+To compile all packages and applications:
 
-You can develop a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+`pnpm build`
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
+Turborepo will build dependencies in the correct order, ensuring `db-schema` and `config` are ready before the apps are built.
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
+### 2. Deployment
 
-### Remote Caching
+#### Frontend
+Deploy the contents of `apps/frontend/dist` to any static hosting provider (Vercel, Cloudflare Pages, etc.).
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+#### Server
+The Fastify server requires a Node.js runtime.
+1. Navigate to the server: `cd apps/server`
+2. Start the production build: `pnpm start`
 
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
+---
 
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
+## 🧪 Commands
 
-```
-cd my-turborepo
+| Command | Description |
+| :--- | :--- |
+| pnpm build | Builds all apps and packages |
+| pnpm dev | Starts development servers |
+| pnpm lint | Runs ESLint across the monorepo |
+| pnpm clean | Removes build artifacts and node_modules |
 
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
+---
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
+## 📄 License
+Distributed under the MIT License.
