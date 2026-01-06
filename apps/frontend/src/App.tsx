@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import ThemeProvider from "./providers/ThemeProvider.js"
 
 import IndexPage from "./pages/IndexPage.js";
+import ViewPage from "./pages/ViewPage.js";
 import Layout from "./layout/Layout";
 import { ToastProvider } from "./providers/ToastProvider.js";
 
@@ -15,6 +16,7 @@ const AppRoutes = () => {
     <Routes>
       <Route element={<Layout />}>
         <Route index path="/" element={<IndexPage />} />
+        <Route path="/view/:slug" element={<ViewPage />} />
         {/* NotFound */}
         <Route path="*" />
       </Route>

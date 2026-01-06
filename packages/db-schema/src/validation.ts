@@ -1,4 +1,5 @@
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
+import { InferSelectModel } from "drizzle-orm";
 import { z } from "zod";
 import { pastesTable } from "./schema.js";
 
@@ -18,5 +19,7 @@ export const insertPasteSchema = baseInsertSchema.extend({
   hasPassword: z.boolean(),
 });
 
+
 export type InsertPaste = z.infer<typeof insertPasteSchema>;
 export const selectPasteSchema: z.ZodObject<any> = createSelectSchema(pastesTable);
+export type SelectPaste = InferSelectModel<typeof pastesTable>;

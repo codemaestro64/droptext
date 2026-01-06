@@ -1,8 +1,8 @@
 import { useState, useCallback } from "react";
 import { SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE } from "@repo/config";
 import { insertPasteSchema, type InsertPaste } from "@repo/db-schema"
-import { useCreatePaste } from "./useCreatePaste";
 import { encryptText } from "../utils/encryption";
+
 export interface EditorStats {
   characters: number;
   words: number;
@@ -17,10 +17,14 @@ export interface LanguageOption {
 export interface EditorFormState {
   textContent: string;
   password: string;
-  isSubmitting: boolean;
   selectedLanguage: LanguageOption;
   duration: number;
   stats: EditorStats;
+}
+
+export interface Payload {
+  payload: InsertPaste;
+  hashSecret: string
 }
 
 export interface EditorFormReturn {
@@ -33,7 +37,7 @@ export interface EditorFormReturn {
   actions: {
     handleEditorChange: (val: string) => void;
     clearContent: () => void;
-    handleSubmit: () => Promise<{ uuid: string, hashSecret: string } | undefined>;
+    preparePayload: () => Promise<Payload>
   };
 }
 
@@ -52,8 +56,6 @@ export const useEditorForm = (): EditorFormReturn => {
   const lang = SUPPORTED_LANGUAGES.find(l => l.value === val);
     if (lang) setSelectedLanguage(lang);
   }, []);
-
-  const { mutate, isPending } = useCreatePaste()
   
   const handleEditorChange = useCallback((val: string) => {
     setTextContent(val);
@@ -69,7 +71,7 @@ export const useEditorForm = (): EditorFormReturn => {
     handleEditorChange("");
   };
 
-  const preparePayload = async () => {
+  const preparePayload = async (): Promise<Payload> => {
     const data: InsertPaste = {
       content: textContent.trim(),
       language: selectedLanguage.value,
@@ -92,31 +94,13 @@ export const useEditorForm = (): EditorFormReturn => {
     return { payload, hashSecret }
   }
 
-  const handleSubmit = async (): Promise<{ uuid: string; hashSecret: string } | undefined> => {
-    return new Promise((resolve, reject) => {
-      mutate(
-        { preparePayload },
-        {
-          onSuccess: (data) => {
-            preparePayload()
-              .then(({ hashSecret }) => {
-                resolve({ uuid: data.uuid, hashSecret });
-              })
-              .catch((err) => reject(err));
-          },
-          onError: (err) => reject(err),
-        }
-      );
-    });
-  };
-
   return {
-    state: { textContent, password, selectedLanguage, duration, stats, isSubmitting: isPending },
+    state: { textContent, password, selectedLanguage, duration, stats },
     setters: { 
       setPassword: setPasswordStable, 
       setSelectedLanguage: setLanguageStable, 
       setDuration: setDurationStable 
     },
-    actions: { handleEditorChange, clearContent, handleSubmit }
+    actions: { handleEditorChange, clearContent, preparePayload }
   };
 };

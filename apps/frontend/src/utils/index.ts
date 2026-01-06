@@ -9,8 +9,8 @@ export const generateUUID = (numChars: number): string => {
 
 export const uuidSecretFromSlug = (
   slug: string
-): { uuid: string; secret: string } => {
-  return (([uuid, secret]) => ({ uuid, secret }))(slug.split(UUID_SECRET_DELIMETER));
+): { uuid: string; hashSecret: string } => {
+  return (([uuid, hashSecret]) => ({ uuid, hashSecret }))(slug.split(UUID_SECRET_DELIMETER));
 };
 
 export const uuidSecretToSlug = (uuid: string, secret: string): string =>
@@ -23,8 +23,8 @@ export const editorExtensionsFromLanguage = (language: string) => {
   return ext ? [ext] : []
 }
 
-export const getTimeRemaining = (expiresAt: number): string => {
-  const futureDate = new Date(expiresAt);
+export const getTimeRemaining = (date: Date): string => {
+  const futureDate = new Date(date);
   const now = new Date();
 
   const diffMs = futureDate.getTime() - now.getTime();
@@ -43,6 +43,17 @@ export const getTimeRemaining = (expiresAt: number): string => {
   if (totalHours >= 1) return `${totalHours} hour${totalHours > 1 ? "s" : ""}`;
   return `${totalMinutes} minute${totalMinutes > 1 ? "s" : ""}`;
 };
+
+export const dateToString = (date: Date): string => {
+  return date.toLocaleString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit', 
+    minute: '2-digit',
+    hour12: true
+  });
+}
 
 export const addMinutesToNow = (minutesToAdd: number): Date => {
   const newDate = new Date().getTime() + minutesToAdd * 60_000

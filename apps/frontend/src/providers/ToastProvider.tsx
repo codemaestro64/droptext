@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { ToastContext, type Toast } from "../context/ToastContext";
 
 export const ToastProvider = ({ children }: { children: ReactNode }) => {
@@ -17,22 +18,26 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
   return (
     <ToastContext.Provider value={{ showToast }}>
       {children}
-      <div className="fixed top-5 right-5 flex flex-col gap-2 z-50">
-        {toasts.map((t) => (
-          <div
-            key={t.id}
-            className={`alert shadow-lg ${
-              t.type === "success"
-                ? "alert-success"
-                : t.type === "error"
-                ? "alert-error"
-                : "alert-info"
-            }`}
-          >
-            {t.message}
-          </div>
-        ))}
-      </div>
+      {createPortal(
+        <div className="fixed top-5 right-5 flex flex-col gap-2 z-[9999] pointer-events-none">
+          {toasts.map((t) => (
+            <div
+              key={t.id}
+              className={`alert shadow-lgs pointer-events-auto animate-in fade-in slide-in-from-right-5  ${
+                t.type === "success"
+                  ? "alert-success"
+                  : t.type === "error"
+                  ? "alert-error"
+                  : "alert-info"
+              }`}
+            >
+              {t.message}
+            </div>
+          ))}
+        </div>,
+        document.body
+      )}
+
     </ToastContext.Provider>
   );
 };

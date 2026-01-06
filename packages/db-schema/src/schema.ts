@@ -18,8 +18,8 @@ export const pastesTable = sqliteTable("pastes", {
     .notNull()
     .default(true),
   views: integer("views").default(0),
-  createdAt: integer("created_at", { mode: "timestamp" })
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
     .notNull()
     .$defaultFn(() => new Date()),
-  expiresAt: integer("expires_at", { mode: "timestamp" })
+  expiresAt: integer("expires_at", { mode: "timestamp_ms" })
 });

@@ -37,13 +37,13 @@ const PasteLinkModal = forwardRef<HTMLDialogElement, PasteLinkModalProps>(
             </div>
           </div>
 
-          {/* Title & Message */}
+          {/* Title and Message */}
           <h3 className="text-2xl font-bold mb-2">Paste Created!</h3>
           <p className="text-sm text-muted-foreground mb-4">
             Your paste is ready to share
           </p>
 
-          {/* Link Display (only when available) */}
+          {/* Link */}
           {link ? (
             <div className="bg-base-100 rounded-md text-left p-4 mb-4 break-all">
               <a

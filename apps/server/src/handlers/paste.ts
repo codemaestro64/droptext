@@ -13,6 +13,7 @@ export const savePaste = async (req: FastifyRequest<{ Body: InsertPaste}>, reply
       .insert(pastesTable as any)
       .values({
         ...validatedData,
+        burnAfterReading: duration === 0,
         expiresAt: new Date(Date.now() + duration * 1000)
       })
       .returning()
@@ -36,16 +37,18 @@ export const getPaste = async (
   const { uuid } = req.params
 
   try {
-    const now = new Date()
+    const now = Date.now()
 
     const result = await dbManager.db.transaction(async (tx) => {
       const paste = await tx
         .select({
           uuid: pastesTable.uuid,
+          hasPassword: pastesTable.hasPassword,
           content: pastesTable.content,
           language: pastesTable.language,
           views: pastesTable.views,
           burnAfterReading: pastesTable.burnAfterReading,
+          createdAt: pastesTable.createdAt,
           expiresAt: pastesTable.expiresAt,
         })
         .from(pastesTable)
@@ -56,10 +59,10 @@ export const getPaste = async (
         return { type: "not_found" as const }
       }
 
-      if (paste.expiresAt && paste.expiresAt <= now) {
-        await tx
-          .delete(pastesTable)
-          .where(eq(pastesTable.uuid, uuid))
+      if (paste.expiresAt && paste.expiresAt.getTime() <= now) {
+       //await tx
+        //  .delete(pastesTable)
+        //  .where(eq(pastesTable.uuid, uuid))
 
         return { type: "expired" as const }
       }

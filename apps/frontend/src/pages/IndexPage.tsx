@@ -9,6 +9,7 @@ import TextInput from "../components/TextInput";
 import SelectInput from "../components/SelectInput";
 import CodeEditor from "../components/CodeEditor";
 import { useToast } from "../hooks/useToast";
+import { savePaste } from "../services/pasteService";
 
 interface Feature {
   icon: React.ReactNode
@@ -47,27 +48,31 @@ const FeatureCard = ({ icon, title, content }: Feature) => (
 );
 
 const IndexPage = () => {
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const { state, setters, actions } = useEditorForm();
   const pasteLinkModalRef = useRef<HTMLDialogElement>(null);
   const [pasteLink, setPasteLink] = useState<string | undefined>(undefined);
   const { showToast } = useToast() 
 
   const handleSubmit = async () => {
+    setIsSubmitting(true)
     try {
-      const result = await actions.handleSubmit();
-      if (!result?.uuid) return;
+      const { payload, hashSecret } = await actions.preparePayload()
+      const res = await savePaste(payload)
+      
+      if (!res.success) {
+        showToast(res.error, "error")
+        return 
+      }
 
-      const { uuid, hashSecret } = result;
-
-      const link = `${window.location.origin}/view/${uuidSecretToSlug(uuid, hashSecret)}`
-      setPasteLink(link);
-
+      const slug = uuidSecretToSlug(res.data.uuid, hashSecret)
+      setPasteLink(`${window.location.origin}/view/${slug}`)
       pasteLinkModalRef.current?.showModal();
-
       actions.clearContent();
     } catch (err) {
-      console.error("Failed to create paste:", err);
-      showToast(`Error saving paste: ${err}`, "error")
+      showToast(`Error preparing payload: ${err}`, "error")
+    } finally {
+      setIsSubmitting(false)
     }
   };
 
@@ -136,10 +141,10 @@ const IndexPage = () => {
                 </button>
                 <button 
                   onClick={handleSubmit} 
-                  disabled={state.isSubmitting || !state.stats.characters} 
+                  disabled={isSubmitting || !state.stats.characters} 
                   className="btn btn-secondary flex items-center gap-2" 
                 >
-                  <Send className="w-4 h-4" /> <span>{state.isSubmitting ? "Submitting..." : "Submit"}</span>
+                  <Send className="w-4 h-4" /> <span>{isSubmitting ? "Submitting..." : "Submit"}</span>
                 </button>
               </div>
             </div>
